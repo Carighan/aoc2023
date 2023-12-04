@@ -1,6 +1,6 @@
 package day2
 
-import java.io.File
+import readFileAsLinesUsingBufferedReader
 
 private val blue = """\d+(?=(\sblue))""".toRegex()
 private val green = """\d+(?=(\sgreen))""".toRegex()
@@ -39,6 +39,4 @@ fun mapValidity(input: List<String>): Map<Int, Boolean> {
     return result;
 }
 
-fun readFileAsLinesUsingBufferedReader(fileName: String): List<String> = File(fileName).bufferedReader().readLines()
-
-fun Int?.isGreaterThan(other: Int?) = this != null && other != null && this > other
+private fun Int?.isGreaterThan(other: Int?) = this != null && other != null && this > other

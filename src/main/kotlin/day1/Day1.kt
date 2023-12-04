@@ -1,6 +1,6 @@
 package day1
 
-import java.io.File
+import readFileAsLinesUsingBufferedReader
 
 private val forward = """\d|one|two|three|four|five|six|seven|eight|nine""".toRegex()
 private val backward = """\d|eno|owt|eerht|ruof|evif|xis|neves|thgie|enin""".toRegex()
@@ -42,5 +42,3 @@ fun mapToInt(oneMatch: String): Int {
     }
     throw Throwable("Not a valid digit!")
 }
-
-fun readFileAsLinesUsingBufferedReader(fileName: String): List<String> = File(fileName).bufferedReader().readLines()
