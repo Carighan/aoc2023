@@ -20,19 +20,15 @@ fun extractPart1(input: String): Int {
 }
 
 fun extractPart2(input: String): Int {
-    println("Input line: $input")
     val matchesForward: MatchResult = forward.find(input) ?: throw Throwable("null match!")
     val matchesBackward: MatchResult = backward.find(input.reversed()) ?: throw Throwable("null match!")
     val leftmost: String = matchesForward.value
     val rightmost: String = matchesBackward.value
     val combined = mapToInt(leftmost).times(10).plus(mapToInt(rightmost))
-    println("Combined value: $combined")
-    println("")
     return combined
 }
 
 fun mapToInt(oneMatch: String): Int {
-    println("Matched substring: $oneMatch")
     when (oneMatch) {
         "1", "one", "eno" -> return 1
         "2", "two", "owt" -> return 2
