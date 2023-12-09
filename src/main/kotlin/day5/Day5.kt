@@ -1,6 +1,7 @@
 package day5
 
 import readFileAsLinesUsingBufferedReader
+import kotlin.math.min
 
 fun main(args: Array<String>) {
     val lines: List<String> = readFileAsLinesUsingBufferedReader("src/main/resources/day5.txt")
@@ -17,10 +18,23 @@ fun main(args: Array<String>) {
     println("Starting, seeds are: $workList")
     for (step in listOf(soils,fertilizers,waters,lights,temperatures,humidities,locations)) {
         val shifted = workList.map(step::shift)
-        println("Done with step, numbers are now: $shifted")
         workList = shifted
     }
-    println("Minimal location value after mapping is ${workList.min()}")
+    println("Part 1: Minimal location value after mapping is ${workList.min()}")
+
+    var currentMin = Long.MAX_VALUE
+    var expandedSeeds = seeds.chunked(2).map { chunk -> LongRange(chunk[0], chunk[0]+chunk[1]-1) }
+    for (range in expandedSeeds) {
+        for ((index, chunk) in range.toList().chunked(1000).withIndex()) {
+            var chunkList = chunk
+            for (step in listOf(soils,fertilizers,waters,lights,temperatures,humidities,locations)) {
+                val shifted = chunkList.map(step::shift)
+                chunkList = shifted
+            }
+            currentMin = min(currentMin, chunkList.min())
+        }
+    }
+    println("Part 2: Minimal location value after mapping is $currentMin")
 }
 
 private fun extractSeeds(line: String): List<Long> {
@@ -60,7 +74,6 @@ private class Step(mappings: List<String>) {
     fun shift(input: Long): Long {
         for (shift in shifts) {
             if (shift.key.contains(input)) {
-                println("Found a shift for $input, ${shift.key} -> ${shift.value}")
                 return input + shift.value
             }
         }
