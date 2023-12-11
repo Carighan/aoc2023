@@ -1,58 +1,76 @@
 package day7
 
 import readFileAsLinesUsingBufferedReader
+import java.util.*
+import kotlin.Comparator
 
 /**
  * Created on 06.12.2023.
  */
+private val cards = arrayOf('A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2')
+
 fun main(args: Array<String>) {
-    val lines: List<String> = readFileAsLinesUsingBufferedReader("src/main/resources/day6.txt")
-    var hands: Map<Hand,Int> = readHands(lines)
-    var sorted = hands.toSortedMap()
+    val lines: List<String> = readFileAsLinesUsingBufferedReader("src/main/resources/day7.txt")
+    val hands: SortedMap<Hand, Int> = readHands(lines)
+    val scores: MutableList<Int> = mutableListOf()
+    for (hand in hands) {
+        scores.add(hand.value)
+    }
+    var sum = 0
+    for ((index, score) in scores.withIndex()) {
+        sum += score * (index+1)
+    }
+    println("Part 1: Total winnings are $sum")
 }
 
-private fun readHands(lines: List<String>): Map<Hand, Int> {
-    val result: MutableMap<Hand,Int> = mutableMapOf()
+private fun readHands(lines: List<String>): SortedMap<Hand, Int> {
+    val result: MutableMap<Hand, Int> = mutableMapOf()
     for (line in lines) {
         val parts = line.split(" ")
         result[Hand(parts[0])] = parts[1].toInt()
     }
-    return result
+    return result.toSortedMap(Comparator.comparing(Hand::value))
 }
 
-private data class Hand(val cards: List<Card>) {
-    private var value: Int = 0
+private data class Hand(val hand: MutableMap<Char, Int>, val raw: String) {
+    var value: Int = 0
 
-    constructor(raw: String) : this(parseCards(raw)) {
+    constructor(raw: String) : this(parseCards(raw), raw) {
         value = computeSetValue() + computeCardValue()
     }
 
+    fun computeCardValue(): Int {
+        return 10000 * (13 - cards.indexOf(raw[0])) + 1000 * (13 - cards.indexOf(raw[1])) + 100 * (13 - cards.indexOf(raw[2])) + 10 * (13 - cards.indexOf(raw[3])) + (13 - cards.indexOf(raw[4]))
+    }
+
     fun computeSetValue(): Int {
-        if ()
+        if (hand.containsValue(5)) {
+            return 6000000
+        }
+        if (hand.containsValue(4)) {
+            return 5000000
+        }
+        if (hand.containsValue(3) && hand.containsValue(2)) {
+            return 4000000
+        }
+        if (hand.containsValue(3)) {
+            return 3000000
+        }
+        if (hand.count { entry -> entry.value == 2 } == 2) {
+            return 2000000
+        }
+        if (hand.containsValue(2)) {
+            return 1000000
+        }
+        return 0
     }
 }
 
-private fun parseCards(raw: String): List<Card> {
-    return raw.map { char -> Card.from(char)!! }.toList()
-}
 
-private enum class Card(val label: Char) {
-    ACE('A'),
-    KING('K'),
-    QUEEN('Q'),
-    JACK('J'),
-    TEN('T'),
-    NINE('9'),
-    EIGHT('8'),
-    SEVEN('7'),
-    SIX('6'),
-    FIVE('5'),
-    FOUR('4'),
-    THREE('3'),
-    TWO('2');
-
-    companion object {
-        private val map = entries.associateBy { it.label }
-        infix fun from(value: Char) = map[value]
+private fun parseCards(raw: String): MutableMap<Char, Int> {
+    val result: MutableMap<Char, Int> = mutableMapOf()
+    for (card in cards) {
+        result[card] = raw.count { letter -> letter == card }
     }
+    return result
 }
