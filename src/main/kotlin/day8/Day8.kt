@@ -12,30 +12,26 @@ fun main(args: Array<String>) {
     var current: String = "AAA"
     var steps: Int = 0
     while (current != "ZZZ") {
-        print("Step $steps: I am at $current, ")
         val command = commands[steps % commands.size]
-        print("using command ${steps % commands.size}, which is $command, ")
-        if (command == 'L') {
-            current = network[current]?.first!!
-            println("so I'll be going left to $current!")
-        } else {
-            current = network[current]?.second!!
-            println("so I'll be going right to $current!")
-        }
+        current = doStep(current, network, command)
         steps++
     }
     println("Part 1: Reached 'ZZZ' in $steps steps")
 
-    val currentNodes: MutableList<String> = network.keys.filter { key -> key.endsWith('A') }.toMutableList()
-    var multiSteps = 0
-    while (!currentNodes.all { node -> node.endsWith('Z') }) {
-        val command = commands[multiSteps % commands.size]
-        currentNodes.replaceAll { node -> doStep(node, network, command) }
-        multiSteps++
+    val startNodes: MutableList<String> = network.keys.filter { key -> key.endsWith('A') }.toMutableList()
+    val solutions: MutableMap<String, Long> = mutableMapOf()
+    for (startNode in startNodes) {
+        var workNode = startNode
+        var workSteps = 0
+        while (!workNode.endsWith('Z')) {
+            val command = commands[workSteps % commands.size]
+            workNode = doStep(workNode, network, command)
+            workSteps++
+        }
+        solutions[startNode] = workSteps.toLong()
     }
-    println("Part 2: Reached all 'xxZ's in $multiSteps steps")
+    println("Part 2: Reached all 'xxZ's in ${lcm(solutions.values.toList())} steps")
 }
-
 private fun doStep(node: String, network: Map<String, Pair<String, String>>, command: Char): String {
     return if (command == 'L') {
         network[node]?.first!!
@@ -52,5 +48,26 @@ private fun readNetwork(lines: List<String>): Map<String, Pair<String, String>> 
         val right = line.substring(12, 15)
         result[position] = Pair(left, right)
     }
+    return result
+}
+
+private fun gcd(a: Long, b: Long): Long {
+    var a = a
+    var b = b
+    while (b > 0) {
+        val temp = b
+        b = a % b // % is remainder
+        a = temp
+    }
+    return a
+}
+
+private fun lcm(a: Long, b: Long): Long {
+    return a * (b / gcd(a, b))
+}
+
+private fun lcm(input: List<Long>): Long {
+    var result = input[0]
+    for (i in 1 until input.size) result = lcm(result, input[i])
     return result
 }
